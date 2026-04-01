@@ -1007,6 +1007,7 @@ async function quickStamp(nick, delta) {
   if (data.stamps >= settings.stampGoal) data.rewarded = true;
   await FS.set('customers', nick, data);
   await addRecent(nick, data.stamps);
+  renderRecentList();
   toast(`${nick}님 ${delta > 0 ? '스탬프 추가' : '스탬프 차감'} (${data.stamps}/${settings.stampGoal})`, delta > 0 ? 'success' : '');
 }
 
