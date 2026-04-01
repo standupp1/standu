@@ -524,7 +524,7 @@ body::before{
       </div>
       <div class="setting-item">
         <label>공지 내용</label>
-        <input type="text" id="set-announce-content" placeholder="공지 내용을 입력하세요">
+        <textarea id="set-announce-content" placeholder="공지 내용을 입력하세요" rows="3" style="width:100%;padding:13px 16px;border:2px solid var(--border);border-radius:14px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:14px;color:var(--text);background:#fff;outline:none;resize:vertical;transition:border-color .2s;"></textarea>
         <button class="btn btn-secondary" style="margin-top:8px;" onclick="addAnnounce()">➕ 공지 추가</button>
       </div>
       <div class="setting-item">
@@ -1041,7 +1041,7 @@ async function loadAnnounces() {
   el.innerHTML = list.map(a => `
     <div style="padding:10px 0;border-bottom:1px solid var(--border);">
       <div style="font-size:14px;font-weight:700;">📢 ${a.title}</div>
-      <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">${a.content}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:3px;white-space:pre-line;">${a.content}</div>
     </div>`).join('');
   renderAnnounceManage(list);
 }
