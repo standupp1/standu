@@ -562,6 +562,10 @@ body::before{
   </div>
   <div class="setting-item">
     <label>SNS 링크</label>
+    <div class="setting-item">
+    <label>소개글</label>
+    <input type="text" id="set-artist-desc" placeholder="예: 판타지 일러스트 작가">
+  </div>
     <input type="text" id="set-artist-sns" placeholder="예: https://twitter.com/...">
     <button class="btn btn-secondary" style="margin-top:8px;" onclick="addArtist()">➕ 작가 추가</button>
   </div>
@@ -1147,7 +1151,8 @@ async function loadArtists() {
       <img src="${a.image}" onerror="this.src=''" alt="${a.name}"
         style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;background:var(--stamp-empty);">
       <div style="flex:1;min-width:0;">
-        <div style="font-size:16px;font-weight:800;margin-bottom:6px;">${a.name}</div>
+       <div style="font-size:16px;font-weight:800;margin-bottom:6px;">${a.name}</div>
+        ${a.desc ? `<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">${a.desc}</div>` : ''}
         <a href="${a.sns}" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;display:inline-flex;">🔗 SNS 보기</a>
       </div>
     </div>`).join('');
@@ -1169,11 +1174,12 @@ function renderArtistManage(list) {
 async function addArtist() {
   const name  = document.getElementById('set-artist-name').value.trim();
   const image = document.getElementById('set-artist-image').value.trim();
-  const sns   = document.getElementById('set-artist-sns').value.trim();
+ const sns   = document.getElementById('set-artist-sns').value.trim();
+  const desc  = document.getElementById('set-artist-desc').value.trim();
   if (!name || !sns) { toast('이름과 SNS 링크는 필수예요', 'error'); return; }
   const data = await FS.get('config', 'artists');
   const list = data?.list || [];
-  list.push({ name, image, sns });
+ list.push({ name, image, sns, desc });
   await FS.set('config', 'artists', { list });
   document.getElementById('set-artist-name').value  = '';
   document.getElementById('set-artist-image').value = '';
