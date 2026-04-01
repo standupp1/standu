@@ -164,7 +164,7 @@ body::before{
   animation:stampIn .5s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes stampIn{0%{transform:scale(0) rotate(-15deg)}100%{transform:scale(1) rotate(0deg)}}
-.stamp-cell.filled::after{content:'⭐';font-size:18px;}
+.stamp-cell.filled::after{content:'';width:100%;height:100%;background:url('https://drive.google.com/uc?export=view&id=172DFaQrlAhyL3tytZz6UsQC4xOjudjN4') center/80% no-repeat;mix-blend-mode:screen;}
 .stamp-cell:not(.filled)::after{content:'☆';font-size:18px;color:var(--stamp-border);}
 
 /* PROGRESS */
