@@ -471,7 +471,7 @@ body::before{
         <div class="card" style="margin-top:16px;border-color:#fca5a5;">
           <div class="card-title" style="color:#dc2626;">⚠️ 위험 구역</div>
           <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">전체 스탬프 데이터를 초기화합니다. 되돌릴 수 없어요.</p>
-          <button class="btn btn-sm btn-danger" onclick="resetAllData()">🗑 전체 데이터 초기화</button>
+          <button class="btn btn-sm btn-success" style="margin-bottom:8px;" onclick="exportCSV()">📥 데이터 내보내기 (CSV)</button>
         </div>
       </div>
     </div>
@@ -917,7 +917,21 @@ async function saveSettings() {
   toast('설정이 저장됐어요 💾', 'success');
 }
 
-async function resetAllData() {
+async function exportCSV() {
+  const customers = await FS.getAll('customers');
+  if (customers.length === 0) { toast('내보낼 데이터가 없어요', 'error'); return; }
+  const rows = [['닉네임', '스탬프 개수', '목표', '보상완료']];
+  customers.forEach(c => {
+    rows.push([c.id, c.stamps || 0, settings.stampGoal, (c.stamps || 0) >= settings.stampGoal ? '완료' : '미완료']);
+  });
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `스탬프_백업_${new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.','')}csv`;
+  a.click();
+  toast('CSV 파일이 다운로드됐어요! 📥', 'success');
+}
   if (!confirm('⚠️ 정말 모든 스탬프 데이터를 초기화할까요?\n되돌릴 수 없어요!')) return;
   const customers = await FS.getAll('customers');
   for (const c of customers) await FS.del('customers', c.id);
