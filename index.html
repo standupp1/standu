@@ -330,7 +330,7 @@ body::before{
       <div id="guide-section" style="margin-bottom:16px;display:none;">
   <div class="card">
     <div class="card-title">ℹ️ 스탬프 안내</div>
-    <div id="guide-content" style="font-size:14px;line-height:1.7;color:var(--text-muted);"></div>
+    <div id="guide-content" style="font-size:14px;line-height:1.7;color:var(--text-muted);white-space:pre-line;"></div>
   </div>
 </div>
       <p style="text-align:center;font-size:12px;color:var(--text-muted);">굿즈 구매 시 직원에게 스탬프를 받으세요 ⭐</p>
@@ -512,7 +512,7 @@ body::before{
 <div class="setting-item">
   <label>스탬프 안내 문구</label>
   <div class="desc">고객 홈 화면에 표시되는 안내예요</div>
-  <input type="text" id="set-guide-content" placeholder="예: 굿즈 구매 1건당 스탬프 1개 적립!">
+  <textarea id="set-guide-content" placeholder="예: 1. 굿즈 구매 1건당 스탬프 1개 적립!&#10;2. 스탬프 5개 모으면 보상 증정!" rows="4" style="width:100%;padding:13px 16px;border:2px solid var(--border);border-radius:14px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:14px;color:var(--text);background:#fff;outline:none;resize:vertical;transition:border-color .2s;"></textarea>
   <button class="btn btn-secondary" style="margin-top:8px;" onclick="saveGuide()">💾 안내 저장</button>
 </div>
   <label>행사 일정 추가</label>
