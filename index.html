@@ -305,6 +305,9 @@ body::before{
       <div class="header">
         <div class="header-badge">✦ STANDUP BOOTH ✦</div>
         <h1>스탬프 <span>카드</span></h1>
+        <div id="admin-badge" style="display:none;text-align:center;margin-bottom:8px;">
+  <span style="background:linear-gradient(135deg,#f59e0b,#ff6b9d);color:#fff;font-size:11px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:.08em;">🔑 직원 전용 링크</span>
+</div>
         <p id="home-sub">스탠드업 부스 — 굿즈를 사면 스탬프를 모아보세요!</p>
       </div>
       <div class="card">
@@ -637,6 +640,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('staff-menu-btn').classList.remove('hidden');
   document.getElementById('stamp-quick-btn').classList.remove('hidden');
     document.getElementById('staff-menu-btn').classList.remove('hidden');
+    document.getElementById('admin-badge').style.display = 'block';
   }
 });
 
