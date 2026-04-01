@@ -311,7 +311,7 @@ body::before{
         <div class="card-title">🎟️ 이용 방법</div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <button class="btn btn-primary" onclick="showPage(&#39;customer-login&#39;)">🌟 내 스탬프 카드 보기</button>
-          <button class="btn btn-secondary" onclick="showPage(&#39;staff-login&#39;)">🔑 직원 메뉴</button>
+         <button class="btn btn-secondary hidden" id="staff-menu-btn" onclick="showPage('staff-login')">🔑 직원 메뉴</button>
         </div>
       </div>
       <p style="text-align:center;font-size:12px;color:var(--text-muted);">굿즈 구매 시 직원에게 스탬프를 받으세요 ⭐</p>
@@ -499,7 +499,10 @@ const HARDCODED_CONFIG = {
 
 // 항상 고정 config로 자동 연결
 window.addEventListener('DOMContentLoaded', () => {
-  startApp(HARDCODED_CONFIG);
+ startApp(HARDCODED_CONFIG);
+  if (window.location.search.includes('admin')) {
+    document.getElementById('staff-menu-btn').classList.remove('hidden');
+  }
 });
 
 function setupError(msg) {
