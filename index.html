@@ -932,6 +932,7 @@ async function exportCSV() {
   a.click();
   toast('CSV 파일이 다운로드됐어요! 📥', 'success');
 }
+  async function resetAllData() {
   if (!confirm('⚠️ 정말 모든 스탬프 데이터를 초기화할까요?\n되돌릴 수 없어요!')) return;
   const customers = await FS.getAll('customers');
   for (const c of customers) await FS.del('customers', c.id);
