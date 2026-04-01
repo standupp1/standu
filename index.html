@@ -315,6 +315,7 @@ body::before{
         <div style="display:flex;flex-direction:column;gap:12px;">
           <button class="btn btn-primary" onclick="showPage(&#39;customer-login&#39;)">🌟 내 스탬프 카드 보기</button>
           <button class="btn btn-secondary" onclick="showPage('artists')">🎨 협력 작가 소개</button>
+          <button class="btn btn-secondary" onclick="showPage('members')">👥 스탠드업 멤버 소개</button>
           <button class="btn btn-primary hidden" id="stamp-quick-btn" onclick="showPage('quick-stamp')" style="background:linear-gradient(135deg,#f59e0b,#ff6b9d);">⭐ 스탬프 적립</button>
          <button class="btn btn-secondary hidden" id="staff-menu-btn" onclick="showPage('staff-login')">🔑 직원 메뉴</button>
         </div>
@@ -340,7 +341,15 @@ body::before{
 </div>
       
     </div>
-
+<!-- MEMBERS -->
+<div id="page-members" class="page hidden">
+  <button class="back-btn" onclick="showPage('home')">← 돌아가기</button>
+  <div class="header">
+    <div class="header-badge">👥 스탠드업 멤버</div>
+    <h1>함께하는 <span>멤버들</span></h1>
+  </div>
+  <div id="member-list"></div>
+</div>
     <!-- ARTISTS -->
 <div id="page-artists" class="page hidden">
   <button class="back-btn" onclick="showPage('home')">← 돌아가기</button>
@@ -579,6 +588,30 @@ body::before{
   </div>
 </div>
     <div class="card">
+  <div class="card-title">👥 멤버 관리</div>
+  <div class="setting-item">
+    <label>멤버 이름</label>
+    <input type="text" id="set-member-name" placeholder="예: 별빛토끼">
+  </div>
+  <div class="setting-item">
+    <label>프로필 이미지 URL</label>
+    <input type="text" id="set-member-image" placeholder="예: https://...">
+  </div>
+  <div class="setting-item">
+    <label>소개글</label>
+    <input type="text" id="set-member-desc" placeholder="예: 디자인 담당">
+  </div>
+  <div class="setting-item">
+    <label>SNS 링크</label>
+    <input type="text" id="set-member-sns" placeholder="예: https://twitter.com/...">
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="addMember()">➕ 멤버 추가</button>
+  </div>
+  <div class="setting-item">
+    <label>현재 멤버 목록</label>
+    <div id="member-manage-list"></div>
+  </div>
+</div>
+    <div class="card">
       <div class="card-title">📅 행사 일정</div>
       <div class="setting-item">
         <label>행사명</label>
@@ -779,6 +812,7 @@ async function initApp() {
   loadAnnounces();
   loadGuide();
   loadArtists();
+  loadMembers();
   showPage('home');
 }
 
@@ -1145,6 +1179,69 @@ async function saveGuide() {
   // ═══════════════════════════════════════════════════
 //  ARTISTS
 // ═══════════════════════════════════════════════════
+ // ═══════════════════════════════════════════════════
+//  MEMBERS
+// ═══════════════════════════════════════════════════
+async function loadMembers() {
+  const data = await FS.get('config', 'members');
+  const list = data?.list || [];
+  const el = document.getElementById('member-list');
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="icon">👥</div><p>등록된 멤버가 없어요</p></div>';
+    return;
+  }
+  el.innerHTML = list.map((a, i) => `
+    <div class="card" style="display:flex;align-items:center;gap:16px;">
+      <img src="${a.image}" onerror="this.src=''" alt="${a.name}"
+        style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;background:var(--stamp-empty);">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:16px;font-weight:800;margin-bottom:6px;">${a.name}</div>
+        ${a.desc ? `<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">${a.desc}</div>` : ''}
+        ${a.sns ? `<a href="${a.sns}" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;display:inline-flex;">🔗 SNS 보기</a>` : ''}
+      </div>
+    </div>`).join('');
+  renderMemberManage(list);
+}
+
+function renderMemberManage(list) {
+  const el = document.getElementById('member-manage-list');
+  if (!el) return;
+  if (list.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--text-muted);">등록된 멤버가 없어요</p>'; return; }
+  el.innerHTML = list.map((a, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <img src="${a.image}" alt="${a.name}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--stamp-empty);">
+      <div style="flex:1;font-size:13px;font-weight:700;">${a.name}</div>
+      <button class="btn btn-sm btn-danger" onclick="deleteMember(${i})">🗑</button>
+    </div>`).join('');
+}
+
+async function addMember() {
+  const name  = document.getElementById('set-member-name').value.trim();
+  const image = document.getElementById('set-member-image').value.trim();
+  const desc  = document.getElementById('set-member-desc').value.trim();
+  const sns   = document.getElementById('set-member-sns').value.trim();
+  if (!name) { toast('이름은 필수예요', 'error'); return; }
+  const data = await FS.get('config', 'members');
+  const list = data?.list || [];
+  list.push({ name, image, desc, sns });
+  await FS.set('config', 'members', { list });
+  document.getElementById('set-member-name').value  = '';
+  document.getElementById('set-member-image').value = '';
+  document.getElementById('set-member-desc').value  = '';
+  document.getElementById('set-member-sns').value   = '';
+  toast('멤버가 추가됐어요! 👥', 'success');
+  loadMembers();
+}
+
+async function deleteMember(idx) {
+  const data = await FS.get('config', 'members');
+  const list = data?.list || [];
+  list.splice(idx, 1);
+  await FS.set('config', 'members', { list });
+  toast('멤버가 삭제됐어요', '');
+  loadMembers();
+} 
 async function loadArtists() {
   const data = await FS.get('config', 'artists');
   const list = data?.list || [];
@@ -1194,6 +1291,7 @@ async function addArtist() {
   document.getElementById('set-artist-sns').value   = '';
   toast('작가가 추가됐어요! 🎨', 'success');
   loadArtists();
+  loadMembers();
 }
 
 async function deleteArtist(idx) {
@@ -1203,6 +1301,7 @@ async function deleteArtist(idx) {
   await FS.set('config', 'artists', { list });
   toast('작가가 삭제됐어요', '');
   loadArtists();
+  loadMembers();
 }
 async function loadNotices() {
   const data = await FS.get('config', 'notices');
