@@ -311,12 +311,30 @@ body::before{
         <div class="card-title">🎟️ 이용 방법</div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <button class="btn btn-primary" onclick="showPage(&#39;customer-login&#39;)">🌟 내 스탬프 카드 보기</button>
+          <button class="btn btn-primary hidden" id="stamp-quick-btn" onclick="showPage('quick-stamp')" style="background:linear-gradient(135deg,#f59e0b,#ff6b9d);">⭐ 스탬프 적립</button>
          <button class="btn btn-secondary hidden" id="staff-menu-btn" onclick="showPage('staff-login')">🔑 직원 메뉴</button>
         </div>
       </div>
       <p style="text-align:center;font-size:12px;color:var(--text-muted);">굿즈 구매 시 직원에게 스탬프를 받으세요 ⭐</p>
     </div>
 
+    <!-- QUICK STAMP -->
+<div id="page-quick-stamp" class="page hidden">
+  <button class="back-btn" onclick="showPage('home')">← 돌아가기</button>
+  <div class="header">
+    <div class="header-badge">⭐ 스탬프 적립</div>
+    <h1>고객 <span>적립</span></h1>
+    <p>닉네임 입력 후 적립하세요</p>
+  </div>
+  <div class="card">
+    <div class="input-group">
+      <label>고객 닉네임</label>
+      <input type="text" id="quick-nick-input" placeholder="닉네임 입력" maxlength="20"
+        onkeydown="if(event.key==='Enter')quickGiveStamp()">
+    </div>
+    <button class="btn btn-primary" onclick="quickGiveStamp()">⭐ 스탬프 적립</button>
+  </div>
+</div>
     <!-- CUSTOMER LOGIN -->
     <div id="page-customer-login" class="page hidden">
       <button class="back-btn" onclick="showPage(&#39;home&#39;)">← 돌아가기</button>
@@ -502,6 +520,8 @@ const HARDCODED_CONFIG = {
 window.addEventListener('DOMContentLoaded', () => {
  startApp(HARDCODED_CONFIG);
   if (window.location.search.includes('admin')) {
+  document.getElementById('staff-menu-btn').classList.remove('hidden');
+  document.getElementById('stamp-quick-btn').classList.remove('hidden');
     document.getElementById('staff-menu-btn').classList.remove('hidden');
   }
 });
@@ -932,6 +952,19 @@ async function exportCSV() {
   a.download = `스탬프_백업_${new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.','')}csv`;
   a.click();
   toast('CSV 파일이 다운로드됐어요! 📥', 'success');
+}
+  async function quickGiveStamp() {
+  const nick = document.getElementById('quick-nick-input').value.trim();
+  if (!nick) { toast('닉네임을 입력해주세요', 'error'); return; }
+  let data = await FS.get('customers', nick);
+  if (!data) { toast(`${nick}님의 카드가 없어요. 관리자 메뉴에서 먼저 등록해주세요`, 'error'); return; }
+  if (data.stamps >= settings.stampGoal && data.rewarded) { toast('이미 보상을 받은 고객이에요 🏆'); return; }
+  data.stamps = Math.min(data.stamps + 1, settings.stampGoal);
+  if (data.stamps >= settings.stampGoal) data.rewarded = true;
+  await FS.set('customers', nick, data);
+  addRecent(nick, data.stamps);
+  toast(`${nick}님 스탬프 적립! (${data.stamps}/${settings.stampGoal}) ⭐`, 'success');
+  document.getElementById('quick-nick-input').value = '';
 }
   async function resetAllData() {
   if (!confirm('⚠️ 정말 모든 스탬프 데이터를 초기화할까요?\n되돌릴 수 없어요!')) return;
