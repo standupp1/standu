@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-
+<!-- saved from url=(0066)file:///C:/Users/%ED%98%84%EC%A7%84/Downloads/standup-stamp_3.html -->
 <html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#fdf4ff">
 <title>스탠드업 스탬프</title>
 <link rel="manifest" href="data:application/json,{}">
-
+<link href="./1스탠드업 스탬프_files/css2" rel="stylesheet">
+<link href="./1스탠드업 스탬프_files/css2" rel="stylesheet">
 
 <!-- ★ Firebase ★ -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="./1스탠드업 스탬프_files/firebase-app-compat.js.다운로드"></script>
+<script src="./1스탠드업 스탬프_files/firebase-firestore-compat.js.다운로드"></script>
+
 <style>
 :root {
   --pink:#ff6b9d; --pink-light:#ffb3d1; --pink-pale:#fff0f6;
@@ -268,14 +270,12 @@ body::before{
 <!--  MAIN APP                       -->
 <!-- ════════════════════════════════ -->
 <div id="main-app">
-  <div class="toast-wrap" id="toastWrap"></div>
-
   <div class="app">
     <!-- 상태 표시 (직원 메뉴에서만 보임) -->
     <div id="net-badge-wrap" style="text-align:center;margin-bottom:14px;display:none;">
       <span class="net-badge online" id="net-badge">
         <span class="net-dot"></span>
-        <span id="net-label">연결 중...</span>
+        <span id="net-label">Firebase 연결됨</span>
       </span>
     </div>
 
@@ -284,7 +284,7 @@ body::before{
       <div class="header">
         <div class="header-badge">✦ STANDUP BOOTH ✦</div>
         <h1>스탬프 <span>카드</span></h1>
-        <p id="home-sub">굿즈를 사면 스탬프를 모아보세요!</p>
+        <p id="home-sub">스탠드업 부스 — 굿즈를 사면 스탬프를 모아보세요!</p>
       </div>
       <div class="card">
         <div class="card-title">🎟️ 이용 방법</div>
@@ -511,6 +511,8 @@ function connectFirebase() {
   }
 
   localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+  startApp(cfg);
+}
 
 function startApp(cfg) {
   try {
