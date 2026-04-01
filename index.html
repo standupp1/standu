@@ -334,16 +334,6 @@ body::before{
     <label>프로필 이미지 URL</label>
     <input type="text" id="set-artist-image" placeholder="예: https://...">
   </div>
-  <div class="setting-item">
-    <label>SNS 링크</label>
-    <input type="text" id="set-artist-sns" placeholder="예: https://twitter.com/...">
-    <button class="btn btn-secondary" style="margin-top:8px;" onclick="addArtist()">➕ 작가 추가</button>
-  </div>
-  <div class="setting-item">
-    <label>현재 작가 목록</label>
-    <div id="artist-manage-list"></div>
-  </div>
-</div>
     <div class="card-title">📅 행사 일정</div>
     <div id="notice-list"></div>
   </div>
@@ -571,6 +561,26 @@ body::before{
       </div>
     </div>
     <div class="card">
+      <div class="card">
+  <div class="card-title">🎨 협력 작가 관리</div>
+  <div class="setting-item">
+    <label>작가 이름</label>
+    <input type="text" id="set-artist-name" placeholder="예: 별빛토끼">
+  </div>
+  <div class="setting-item">
+    <label>프로필 이미지 URL</label>
+    <input type="text" id="set-artist-image" placeholder="예: https://...">
+  </div>
+  <div class="setting-item">
+    <label>SNS 링크</label>
+    <input type="text" id="set-artist-sns" placeholder="예: https://twitter.com/...">
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="addArtist()">➕ 작가 추가</button>
+  </div>
+  <div class="setting-item">
+    <label>현재 작가 목록</label>
+    <div id="artist-manage-list"></div>
+  </div>
+</div>
       <div class="card-title">📅 행사 일정</div>
       <div class="setting-item">
         <label>행사명</label>
