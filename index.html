@@ -311,6 +311,7 @@ body::before{
         <div class="card-title">🎟️ 이용 방법</div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <button class="btn btn-primary" onclick="showPage(&#39;customer-login&#39;)">🌟 내 스탬프 카드 보기</button>
+          <button class="btn btn-secondary" onclick="showPage('artists')">🎨 협력 작가 보기</button>
           <button class="btn btn-primary hidden" id="stamp-quick-btn" onclick="showPage('quick-stamp')" style="background:linear-gradient(135deg,#f59e0b,#ff6b9d);">⭐ 스탬프 적립</button>
          <button class="btn btn-secondary hidden" id="staff-menu-btn" onclick="showPage('staff-login')">🔑 직원 메뉴</button>
         </div>
@@ -323,6 +324,26 @@ body::before{
 </div>
       <div id="notice-section" style="margin-bottom:16px;display:none;">
   <div class="card">
+    <div class="card">
+  <div class="card-title">🎨 협력 작가 관리</div>
+  <div class="setting-item">
+    <label>작가 이름</label>
+    <input type="text" id="set-artist-name" placeholder="예: 별빛토끼">
+  </div>
+  <div class="setting-item">
+    <label>프로필 이미지 URL</label>
+    <input type="text" id="set-artist-image" placeholder="예: https://...">
+  </div>
+  <div class="setting-item">
+    <label>SNS 링크</label>
+    <input type="text" id="set-artist-sns" placeholder="예: https://twitter.com/...">
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="addArtist()">➕ 작가 추가</button>
+  </div>
+  <div class="setting-item">
+    <label>현재 작가 목록</label>
+    <div id="artist-manage-list"></div>
+  </div>
+</div>
     <div class="card-title">📅 행사 일정</div>
     <div id="notice-list"></div>
   </div>
@@ -336,6 +357,15 @@ body::before{
       <p style="text-align:center;font-size:12px;color:var(--text-muted);">굿즈 구매 시 직원에게 스탬프를 받으세요 ⭐</p>
     </div>
 
+    <!-- ARTISTS -->
+<div id="page-artists" class="page hidden">
+  <button class="back-btn" onclick="showPage('home')">← 돌아가기</button>
+  <div class="header">
+    <div class="header-badge">🎨 협력 작가</div>
+    <h1>함께하는 <span>작가들</span></h1>
+  </div>
+  <div id="artist-list"></div>
+</div>
     <!-- QUICK STAMP -->
 <div id="page-quick-stamp" class="page hidden">
   <button class="back-btn" onclick="showPage('home')">← 돌아가기</button>
@@ -739,6 +769,7 @@ async function initApp() {
  loadNotices();
   loadAnnounces();
   loadGuide();
+  loadArtists();
   showPage('home');
 }
 
@@ -1099,6 +1130,66 @@ async function saveGuide() {
 // ═══════════════════════════════════════════════════
 //  NOTICE
 // ═══════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════
+//  ARTISTS
+// ═══════════════════════════════════════════════════
+async function loadArtists() {
+  const data = await FS.get('config', 'artists');
+  const list = data?.list || [];
+  const el = document.getElementById('artist-list');
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="icon">🎨</div><p>등록된 작가가 없어요</p></div>';
+    return;
+  }
+  el.innerHTML = list.map((a, i) => `
+    <div class="card" style="display:flex;align-items:center;gap:16px;">
+      <img src="${a.image}" onerror="this.src=''" alt="${a.name}"
+        style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;background:var(--stamp-empty);">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:16px;font-weight:800;margin-bottom:6px;">${a.name}</div>
+        <a href="${a.sns}" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;display:inline-flex;">🔗 SNS 보기</a>
+      </div>
+    </div>`).join('');
+  renderArtistManage(list);
+}
+
+function renderArtistManage(list) {
+  const el = document.getElementById('artist-manage-list');
+  if (!el) return;
+  if (list.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--text-muted);">등록된 작가가 없어요</p>'; return; }
+  el.innerHTML = list.map((a, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <img src="${a.image}" alt="${a.name}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--stamp-empty);">
+      <div style="flex:1;font-size:13px;font-weight:700;">${a.name}</div>
+      <button class="btn btn-sm btn-danger" onclick="deleteArtist(${i})">🗑</button>
+    </div>`).join('');
+}
+
+async function addArtist() {
+  const name  = document.getElementById('set-artist-name').value.trim();
+  const image = document.getElementById('set-artist-image').value.trim();
+  const sns   = document.getElementById('set-artist-sns').value.trim();
+  if (!name || !sns) { toast('이름과 SNS 링크는 필수예요', 'error'); return; }
+  const data = await FS.get('config', 'artists');
+  const list = data?.list || [];
+  list.push({ name, image, sns });
+  await FS.set('config', 'artists', { list });
+  document.getElementById('set-artist-name').value  = '';
+  document.getElementById('set-artist-image').value = '';
+  document.getElementById('set-artist-sns').value   = '';
+  toast('작가가 추가됐어요! 🎨', 'success');
+  loadArtists();
+}
+
+async function deleteArtist(idx) {
+  const data = await FS.get('config', 'artists');
+  const list = data?.list || [];
+  list.splice(idx, 1);
+  await FS.set('config', 'artists', { list });
+  toast('작가가 삭제됐어요', '');
+  loadArtists();
+}
 async function loadNotices() {
   const data = await FS.get('config', 'notices');
   const notices = data?.list || [];
