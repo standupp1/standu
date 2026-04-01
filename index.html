@@ -884,7 +884,8 @@ function _renderCard(nick, data) {
     <div class="reward-banner">
       <span class="trophy">🏆</span>
       <h3>스탬프 완성! 보상을 받으세요!</h3>
-      <p>${settings.rewardDesc}</p>
+     <p>${settings.rewardDesc}</p>
+      <button onclick="staffConfirmReward('${nick}')" style="margin-top:12px;background:#fff;border:2px solid var(--gold);color:#92400e;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;font-weight:700;padding:8px 20px;border-radius:12px;cursor:pointer;">✅ 직원 확인 완료</button>
     </div>` : '';
 }
 
@@ -1276,6 +1277,15 @@ async function exportCSV() {
   addRecent(nick, data.stamps);
   toast(`${nick}님 스탬프 적립! (${data.stamps}/${settings.stampGoal}) ⭐`, 'success');
   document.getElementById('quick-nick-input').value = '';
+}
+ async function staffConfirmReward(nick) {
+  const pw = prompt('관리자 비밀번호를 입력하세요:');
+  if (pw === null) return;
+  if (pw !== settings.adminPw) { toast('비밀번호가 틀렸습니다', 'error'); return; }
+  if (!confirm(`"${nick}"님의 보상을 확인했습니다.\n스탬프를 초기화할까요?`)) return;
+  await FS.set('customers', nick, { stamps: 0, rewarded: false });
+  toast(`${nick}님 스탬프가 초기화됐어요`, 'success');
+  renderCustomerCard(nick);
 }
   async function resetAllData() {
   if (!confirm('⚠️ 정말 모든 스탬프 데이터를 초기화할까요?\n되돌릴 수 없어요!')) return;
