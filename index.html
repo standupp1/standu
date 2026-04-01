@@ -943,7 +943,8 @@ async function addRecent(nick, stamps) {
   recentStamps = recentStamps.filter(r => r.nick !== nick);
   recentStamps.unshift({ nick, stamps, goal: settings.stampGoal, time: Date.now() });
   if (recentStamps.length > 20) recentStamps = recentStamps.slice(0, 20);
-  await FS.set('config', 'recent', { list: recentStamps });
+  renderRecentList();
+  FS.set('config', 'recent', { list: recentStamps });
 }
 
 function renderRecentList() {
