@@ -564,12 +564,12 @@ body::before{
     <label>프로필 이미지 URL</label>
     <input type="text" id="set-artist-image" placeholder="예: https://...">
   </div>
-  <div class="setting-item">
-    <label>SNS 링크</label>
-    <div class="setting-item">
+<div class="setting-item">
     <label>소개글</label>
     <input type="text" id="set-artist-desc" placeholder="예: 판타지 일러스트 작가">
   </div>
+ <div class="setting-item">
+    <label>SNS 링크</label>
     <input type="text" id="set-artist-sns" placeholder="예: https://twitter.com/...">
     <button class="btn btn-secondary" style="margin-top:8px;" onclick="addArtist()">➕ 작가 추가</button>
   </div>
@@ -915,7 +915,7 @@ async function giveStamp() {
   if (data.stamps >= settings.stampGoal) data.rewarded = true;
   await FS.set('customers', nick, data);
 
-  addRecent(nick, data.stamps);
+  await addRecent(nick, data.stamps);
   toast(`${nick}님 스탬프 추가! (${data.stamps}/${settings.stampGoal}) ⭐`, 'success');
   document.getElementById('stamp-nick-input').value = '';
   renderRecentList();
@@ -933,7 +933,7 @@ async function removeStamp() {
   if (data.stamps < settings.stampGoal) data.rewarded = false;
   await FS.set('customers', nick, data);
 
-  addRecent(nick, data.stamps);
+  await addRecent(nick, data.stamps);
   toast(`${nick}님 스탬프 차감 (${data.stamps}/${settings.stampGoal})`, '');
   document.getElementById('stamp-nick-input').value = '';
   renderRecentList();
@@ -1006,7 +1006,7 @@ async function quickStamp(nick, delta) {
   if (data.stamps < settings.stampGoal) data.rewarded = false;
   if (data.stamps >= settings.stampGoal) data.rewarded = true;
   await FS.set('customers', nick, data);
-  addRecent(nick, data.stamps);
+  await addRecent(nick, data.stamps);
   toast(`${nick}님 ${delta > 0 ? '스탬프 추가' : '스탬프 차감'} (${data.stamps}/${settings.stampGoal})`, delta > 0 ? 'success' : '');
 }
 
@@ -1274,7 +1274,7 @@ async function exportCSV() {
   data.stamps = Math.min(data.stamps + 1, settings.stampGoal);
   if (data.stamps >= settings.stampGoal) data.rewarded = true;
   await FS.set('customers', nick, data);
-  addRecent(nick, data.stamps);
+  await addRecent(nick, data.stamps);
   toast(`${nick}님 스탬프 적립! (${data.stamps}/${settings.stampGoal}) ⭐`, 'success');
   document.getElementById('quick-nick-input').value = '';
 }
