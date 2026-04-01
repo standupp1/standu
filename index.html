@@ -324,16 +324,6 @@ body::before{
 </div>
       <div id="notice-section" style="margin-bottom:16px;display:none;">
   <div class="card">
-    <div class="card">
-  <div class="card-title">🎨 협력 작가 관리</div>
-  <div class="setting-item">
-    <label>작가 이름</label>
-    <input type="text" id="set-artist-name" placeholder="예: 별빛토끼">
-  </div>
-  <div class="setting-item">
-    <label>프로필 이미지 URL</label>
-    <input type="text" id="set-artist-image" placeholder="예: https://...">
-  </div>
     <div class="card-title">📅 행사 일정</div>
     <div id="notice-list"></div>
   </div>
@@ -560,7 +550,6 @@ body::before{
         <button class="btn btn-secondary" style="margin-top:8px;" onclick="saveGuide()">💾 안내 저장</button>
       </div>
     </div>
-    <div class="card">
       <div class="card">
   <div class="card-title">🎨 협력 작가 관리</div>
   <div class="setting-item">
@@ -581,6 +570,7 @@ body::before{
     <div id="artist-manage-list"></div>
   </div>
 </div>
+    <div class="card">
       <div class="card-title">📅 행사 일정</div>
       <div class="setting-item">
         <label>행사명</label>
@@ -1067,7 +1057,7 @@ async function saveSettings() {
   await FS.set('config', 'settings', settings);
   document.getElementById('home-sub').textContent = settings.eventName + ' — 굿즈를 사면 스탬프를 모아보세요!';
   toast('설정이 저장됐어요 💾', 'success');
-  }
+}
   // ═══════════════════════════════════════════════════
 //  ANNOUNCE
 // ═══════════════════════════════════════════════════
