@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<!-- saved from url=(0066)file:///C:/Users/%ED%98%84%EC%A7%84/Downloads/standup-stamp_2.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fdf4ff">
+<title>스탠드업 스탬프</title>
+<link rel="manifest" href="data:application/json,{}">
+<link href="./스탠드업 스탬프_files/css2" rel="stylesheet">
+
+<!-- ★ Firebase ★ -->
+<script src="./스탠드업 스탬프_files/firebase-app-compat.js.다운로드"></script>
+<script src="./스탠드업 스탬프_files/firebase-firestore-compat.js.다운로드"></script>
+
+<style>
+:root {
+  --pink:#ff6b9d; --pink-light:#ffb3d1; --pink-pale:#fff0f6;
+  --purple:#c084fc; --purple-dark:#7c3aed;
+  --gold:#fbbf24; --gold-light:#fef3c7;
+  --bg:#fdf4ff; --text:#2d1b4e; --text-muted:#9d7fc0;
+  --card:#ffffff; --border:#e9d5f5;
+  --stamp-empty:#f3e8ff; --stamp-border:#c084fc;
+  --shadow:0 8px 32px rgba(192,132,252,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  background:var(--bg); color:var(--text); min-height:100vh;
+  background-image:
+    radial-gradient(circle at 20% 20%,rgba(255,107,157,.08) 0%,transparent 50%),
+    radial-gradient(circle at 80% 80%,rgba(192,132,252,.1) 0%,transparent 50%);
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 15% 25%,rgba(255,107,157,.4),transparent),
+    radial-gradient(1px 1px at 40% 15%,rgba(192,132,252,.5),transparent),
+    radial-gradient(2px 2px at 70% 30%,rgba(251,191,36,.35),transparent),
+    radial-gradient(1px 1px at 85% 60%,rgba(255,107,157,.3),transparent),
+    radial-gradient(1.5px 1.5px at 25% 75%,rgba(192,132,252,.4),transparent),
+    radial-gradient(1px 1px at 90% 10%,rgba(192,132,252,.35),transparent);
+}
+
+.app{position:relative;z-index:1;max-width:420px;margin:0 auto;padding:20px 16px 48px;}
+
+/* SETUP SCREEN */
+.setup-screen{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:24px;
+}
+.setup-box{
+  background:var(--card);border-radius:24px;padding:28px;
+  box-shadow:var(--shadow);border:1.5px solid var(--border);
+  width:100%;max-width:420px;
+}
+.setup-logo{font-size:40px;text-align:center;margin-bottom:8px;}
+.setup-box h2{font-family:'Zen Maru Gothic',sans-serif;font-size:20px;font-weight:900;text-align:center;margin-bottom:6px;}
+.setup-box p{font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:20px;line-height:1.6;}
+.setup-step{
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:14px;padding:14px;margin-bottom:10px;
+  font-size:13px;line-height:1.7;
+}
+.setup-step strong{color:var(--purple-dark);}
+.setup-step code{
+  background:#f3e8ff;color:var(--purple-dark);
+  padding:1px 6px;border-radius:4px;font-size:12px;font-family:monospace;
+}
+.setup-step a{color:var(--pink);font-weight:700;text-decoration:none;}
+.config-textarea{
+  width:100%;height:160px;padding:12px;
+  border:1.5px solid var(--border);border-radius:12px;
+  font-family:monospace;font-size:12px;
+  color:var(--text);background:var(--bg);
+  outline:none;resize:vertical;margin-bottom:12px;
+  transition:border-color .2s;
+}
+.config-textarea:focus{border-color:var(--pink);}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:24px;}
+.header-badge{
+  display:inline-block;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;
+  padding:4px 14px;border-radius:20px;margin-bottom:10px;
+}
+.header h1{font-family:'Zen Maru Gothic',sans-serif;font-size:26px;font-weight:900;line-height:1.2;}
+.header h1 span{color:var(--pink);}
+.header p{font-size:13px;color:var(--text-muted);margin-top:6px;}
+
+/* CARD */
+.card{
+  background:var(--card);border-radius:24px;padding:24px;
+  box-shadow:var(--shadow);border:1.5px solid var(--border);margin-bottom:16px;
+}
+.card-title{
+  font-size:12px;font-weight:800;letter-spacing:.08em;
+  color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* BUTTONS */
+.btn{
+  width:100%;padding:14px;border:none;border-radius:14px;
+  font-family:'M PLUS Rounded 1c',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:#fff;box-shadow:0 4px 16px rgba(255,107,157,.35);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,157,.45);}
+.btn-primary:active{transform:translateY(0);}
+.btn-secondary{background:var(--stamp-empty);color:var(--purple-dark);border:1.5px solid var(--border);}
+.btn-secondary:hover{background:var(--border);}
+.btn-ghost{background:transparent;color:var(--text-muted);font-size:13px;padding:8px;}
+.btn-sm{padding:6px 14px;width:auto;font-size:12px;border-radius:10px;}
+.btn-danger{background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;}
+.btn-success{background:#dcfce7;color:#16a34a;border:1.5px solid #86efac;}
+
+/* INPUT */
+.input-group{margin-bottom:14px;}
+.input-group label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.input-group input,.input-group select{
+  width:100%;padding:12px 16px;border:1.5px solid var(--border);
+  border-radius:12px;font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:15px;color:var(--text);background:var(--bg);outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.input-group input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,107,157,.12);}
+
+/* PAGE */
+.page{animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* STAMP GRID */
+.stamp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;}
+.stamp-cell{
+  aspect-ratio:1;border-radius:50%;border:2px solid var(--stamp-border);
+  background:var(--stamp-empty);display:flex;align-items:center;justify-content:center;
+  font-size:20px;transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative;
+}
+.stamp-cell.filled{
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  border-color:var(--purple-dark);box-shadow:0 3px 10px rgba(255,107,157,.4);
+  animation:stampIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes stampIn{0%{transform:scale(0) rotate(-15deg)}100%{transform:scale(1) rotate(0deg)}}
+.stamp-cell.filled::after{content:'⭐';font-size:18px;}
+.stamp-cell:not(.filled)::after{content:'☆';font-size:18px;color:var(--stamp-border);}
+
+/* PROGRESS */
+.progress-bar{height:8px;background:var(--stamp-empty);border-radius:99px;overflow:hidden;margin:8px 0 4px;border:1px solid var(--border);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.progress-label{font-size:12px;color:var(--text-muted);text-align:right;}
+
+/* REWARD BANNER */
+.reward-banner{
+  background:linear-gradient(135deg,#fef3c7,#fff7ed);border:2px solid var(--gold);
+  border-radius:16px;padding:16px;text-align:center;margin-top:12px;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.4)}50%{box-shadow:0 0 0 8px rgba(251,191,36,0)}}
+.reward-banner .trophy{font-size:32px;display:block;margin-bottom:6px;}
+.reward-banner h3{font-size:16px;font-weight:800;color:#92400e;}
+.reward-banner p{font-size:13px;color:#b45309;margin-top:4px;}
+
+/* CUSTOMER INFO */
+.customer-name-display{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  background:linear-gradient(135deg,var(--pink-pale),#f5f0ff);
+  border-radius:14px;border:1.5px solid var(--pink-light);margin-bottom:16px;
+}
+.avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;color:#fff;font-weight:800;
+}
+
+/* NET STATUS */
+.net-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:800;letter-spacing:.05em;
+  padding:4px 12px;border-radius:99px;transition:all .4s;
+}
+.net-badge.online{background:#dcfce7;color:#15803d;border:1.5px solid #86efac;}
+.net-badge.offline{background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;}
+.net-badge.syncing{background:#fef3c7;color:#92400e;border:1.5px solid var(--gold);}
+.net-dot{width:7px;height:7px;border-radius:50%;animation:blink 1.8s infinite;}
+.online .net-dot{background:#22c55e;}
+.offline .net-dot{background:#ef4444;animation:none;}
+.syncing .net-dot{background:var(--gold);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin-bottom:16px;}
+.tab{
+  flex:1;padding:10px;border:1.5px solid var(--border);border-radius:12px;
+  background:var(--bg);cursor:pointer;font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:12px;font-weight:700;color:var(--text-muted);transition:all .2s;
+}
+.tab.active{
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(255,107,157,.3);
+}
+
+/* ADMIN LIST */
+.admin-list{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow-y:auto;}
+.admin-list::-webkit-scrollbar{width:4px;}
+.admin-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.customer-row{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  background:var(--bg);border-radius:12px;border:1.5px solid var(--border);
+  transition:border-color .2s;
+}
+.customer-row:hover{border-color:var(--pink-light);}
+.customer-row .info{flex:1;min-width:0;}
+.customer-row .info .name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mini-stamps{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;}
+.mini-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--stamp-border);background:var(--stamp-empty);}
+.mini-dot.filled{background:var(--pink);border-color:var(--purple-dark);}
+.rewarded-badge{
+  background:var(--gold-light);color:#92400e;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:99px;border:1px solid var(--gold);white-space:nowrap;
+}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
+.toast{
+  background:var(--text);color:#fff;padding:10px 20px;border-radius:99px;
+  font-size:14px;font-weight:700;animation:toastIn .3s ease;white-space:nowrap;
+}
+.toast.success{background:linear-gradient(135deg,var(--pink),var(--purple));}
+.toast.error{background:#dc2626;}
+@keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ETC */
+.empty{text-align:center;padding:32px 16px;color:var(--text-muted);}
+.empty .icon{font-size:40px;margin-bottom:12px;}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);font-weight:700;cursor:pointer;margin-bottom:16px;border:none;background:none;font-family:inherit;padding:0;}
+.back-btn:hover{color:var(--text);}
+.section-label{font-size:12px;font-weight:800;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.search-box{position:relative;margin-bottom:12px;}
+.search-box input{padding-left:38px;}
+.search-box::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;z-index:1;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-box{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
+.stat-box .num{font-size:28px;font-weight:900;color:var(--pink);line-height:1;}
+.stat-box .lbl{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.setting-item{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.setting-item label{font-size:13px;font-weight:700;}
+.setting-item .desc{font-size:12px;color:var(--text-muted);}
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;}
+.divider span{font-size:12px;color:var(--text-muted);white-space:nowrap;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ════════════════════════════════ -->
+<!--  MAIN APP                       -->
+<!-- ════════════════════════════════ -->
+<div id="main-app">
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <div class="app">
+    <!-- 상태 표시 (직원 메뉴에서만 보임) -->
+    <div id="net-badge-wrap" style="text-align:center;margin-bottom:14px;display:none;">
+      <span class="net-badge online" id="net-badge">
+        <span class="net-dot"></span>
+        <span id="net-label">연결 중...</span>
+      </span>
+    </div>
+
+    <!-- HOME -->
+    <div id="page-home" class="page">
+      <div class="header">
+        <div class="header-badge">✦ STANDUP BOOTH ✦</div>
+        <h1>스탬프 <span>카드</span></h1>
+        <p id="home-sub">굿즈를 사면 스탬프를 모아보세요!</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🎟️ 이용 방법</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <button class="btn btn-primary" onclick="showPage(&#39;customer-login&#39;)">🌟 내 스탬프 카드 보기</button>
+          <button class="btn btn-secondary" onclick="showPage(&#39;staff-login&#39;)">🔑 직원 메뉴</button>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:12px;color:var(--text-muted);">굿즈 구매 시 직원에게 스탬프를 받으세요 ⭐</p>
+    </div>
+
+    <!-- CUSTOMER LOGIN -->
+    <div id="page-customer-login" class="page hidden">
+      <button class="back-btn" onclick="showPage(&#39;home&#39;)">← 돌아가기</button>
+      <div class="header">
+        <div class="header-badge">고객 입장</div>
+        <h1>내 <span>카드</span></h1>
+        <p>닉네임으로 카드를 확인하세요</p>
+      </div>
+      <div class="card">
+        <div class="input-group">
+          <label>닉네임</label>
+          <input type="text" id="customer-nick-input" placeholder="예: 별빛토끼" maxlength="20" onkeydown="if(event.key===&#39;Enter&#39;)customerLogin()">
+        </div>
+        <button class="btn btn-primary" onclick="customerLogin()">🌟 카드 확인하기</button>
+      </div>
+    </div>
+
+    <!-- CUSTOMER NOT FOUND -->
+    <div id="page-customer-notfound" class="page hidden">
+      <button class="back-btn" onclick="showPage(&#39;customer-login&#39;)">← 다시 입력</button>
+      <div class="header">
+        <div class="header-badge">❌ 확인 불가</div>
+        <h1>닉네임을 <span>찾을 수 없어요</span></h1>
+      </div>
+      <div class="card" style="text-align:center;padding:32px 24px;">
+        <div style="font-size:56px;margin-bottom:16px;">🔍</div>
+        <div style="display:inline-block;background:var(--stamp-empty);border:1.5px solid var(--border);border-radius:12px;padding:8px 20px;margin-bottom:20px;">
+          <span style="font-size:16px;font-weight:800;color:var(--purple-dark);" id="notfound-nick">-</span>
+        </div>
+        <p style="font-size:15px;font-weight:700;margin-bottom:10px;">존재하지 않는 닉네임이에요</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.7;">스탬프 카드 발급은 부스 직원에게<br>요청해주세요 🙏</p>
+        <div style="margin-top:24px;padding:14px;background:linear-gradient(135deg,var(--pink-pale),#f5f0ff);border-radius:14px;border:1.5px solid var(--pink-light);">
+          <p style="font-size:12px;font-weight:800;color:var(--pink);letter-spacing:.05em;">✦ STANDUP 직원 안내 ✦</p>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:6px;">굿즈 구매 후 직원에게<br>닉네임 등록을 요청하세요!</p>
+        </div>
+      </div>
+      <button class="btn btn-secondary" onclick="showPage(&#39;customer-login&#39;)">← 다시 입력하기</button>
+    </div>
+
+    <!-- CUSTOMER CARD -->
+    <div id="page-customer-card" class="page hidden">
+      <button class="back-btn" onclick="showPage(&#39;customer-login&#39;)">← 다른 닉네임</button>
+      <div class="header">
+        <div class="header-badge">내 스탬프 카드</div>
+        <h1><span id="card-nick">-</span>님의 카드</h1>
+      </div>
+      <div id="reward-slot"></div>
+      <div class="card">
+        <div class="customer-name-display">
+          <div class="avatar" id="card-avatar">?</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;" id="card-name">-</div>
+            <div style="font-size:12px;color:var(--text-muted);" id="card-sub">-</div>
+          </div>
+        </div>
+        <div class="card-title">⭐ 스탬프 현황</div>
+        <div class="stamp-grid" id="stamp-grid"></div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-label" id="progress-label"></div>
+        <div style="margin-top:14px;padding:12px;background:var(--gold-light);border-radius:12px;border:1px solid var(--gold);">
+          <p style="font-size:13px;font-weight:700;color:#92400e;">🎁 보상</p>
+          <p style="font-size:13px;color:#b45309;margin-top:4px;" id="card-reward">-</p>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:12px;color:var(--text-muted);">굿즈 구매 후 직원에게 이 화면을 보여주세요 📱</p>
+    </div>
+
+    <!-- STAFF LOGIN -->
+    <div id="page-staff-login" class="page hidden">
+      <button class="back-btn" onclick="showPage(&#39;home&#39;)">← 돌아가기</button>
+      <div class="header">
+        <div class="header-badge">직원 전용</div>
+        <h1>직원 <span>로그인</span></h1>
+      </div>
+      <div class="card">
+        <div class="input-group">
+          <label>관리자 비밀번호</label>
+          <input type="password" id="admin-pw-input" placeholder="비밀번호 입력" onkeydown="if(event.key===&#39;Enter&#39;)staffLogin()">
+        </div>
+        <button class="btn btn-primary" onclick="staffLogin()">🔑 로그인</button>
+      </div>
+      <p style="text-align:center;font-size:12px;color:var(--text-muted);">초기 비밀번호: <strong>1234</strong></p>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="page-admin" class="page hidden">
+      <button class="back-btn" onclick="showPage(&#39;home&#39;)">← 나가기</button>
+      <div class="header">
+        <div class="header-badge">🔑 직원 메뉴</div>
+        <h1>부스 <span>관리</span></h1>
+      </div>
+      <div class="tabs">
+        <button class="tab active" id="tab-stamp" onclick="switchTab(&#39;stamp&#39;)">⭐ 발급</button>
+        <button class="tab" id="tab-list" onclick="switchTab(&#39;list&#39;)">📋 목록</button>
+        <button class="tab" id="tab-settings" onclick="switchTab(&#39;settings&#39;)">⚙️ 설정</button>
+      </div>
+
+      <!-- TAB STAMP -->
+      <div id="tab-content-stamp">
+        <div class="card">
+          <div class="card-title">⭐ 스탬프 관리</div>
+          <div class="input-group">
+            <label>고객 닉네임</label>
+            <input type="text" id="stamp-nick-input" placeholder="닉네임 입력" maxlength="20" onkeydown="if(event.key===&#39;Enter&#39;)giveStamp()">
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="giveStamp()">⭐ +1 추가</button>
+            <button class="btn btn-danger" style="flex:none;width:auto;padding:14px 20px;" onclick="removeStamp()">－1 차감</button>
+          </div>
+        </div>
+        <div class="section-label">최근 발급</div>
+        <div class="admin-list" id="recent-list">
+          <div class="empty"><div class="icon">📭</div><p>아직 발급 내역이 없어요</p></div>
+        </div>
+      </div>
+
+      <!-- TAB LIST -->
+      <div id="tab-content-list" class="hidden">
+        <div class="stats-row">
+          <div class="stat-box"><div class="num" id="stat-total">0</div><div class="lbl">총 고객</div></div>
+          <div class="stat-box"><div class="num" id="stat-rewarded">0</div><div class="lbl">보상 완료</div></div>
+        </div>
+        <div class="search-box">
+          <input type="text" placeholder="닉네임 검색..." oninput="renderCustomerList(this.value)">
+        </div>
+        <div class="admin-list" id="customer-list"></div>
+      </div>
+
+      <!-- TAB SETTINGS -->
+      <div id="tab-content-settings" class="hidden">
+        <div class="card">
+          <div class="card-title">⚙️ 이벤트 설정</div>
+          <div class="setting-item">
+            <label>이벤트 이름</label>
+            <input type="text" id="set-event-name" placeholder="예: 스탠드업 봄 부스 2025">
+          </div>
+          <div class="setting-item">
+            <label>스탬프 목표 개수</label>
+            <div class="desc">몇 개 모으면 보상을 받나요?</div>
+            <input type="number" id="set-stamp-goal" min="1" max="20">
+          </div>
+          <div class="setting-item">
+            <label>보상 내용</label>
+            <input type="text" id="set-reward-desc" placeholder="예: 한정 아크릴 스탠드 증정!">
+          </div>
+          <div class="setting-item">
+            <label>관리자 비밀번호 변경</label>
+            <input type="password" id="set-admin-pw" placeholder="새 비밀번호 (빈칸이면 변경 안 함)">
+          </div>
+          <button class="btn btn-primary" style="margin-top:4px;" onclick="saveSettings()">💾 설정 저장</button>
+        </div>
+        <div class="card" style="margin-top:16px;border-color:#fca5a5;">
+          <div class="card-title" style="color:#dc2626;">⚠️ 위험 구역</div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">전체 스탬프 데이터를 초기화합니다. 되돌릴 수 없어요.</p>
+          <button class="btn btn-sm btn-danger" onclick="resetAllData()">🗑 전체 데이터 초기화</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app -->
+</div><!-- /main-app -->
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG & FIREBASE INIT
+// ═══════════════════════════════════════════════════
+let db = null;
+let isDemo = false;
+const DEMO_STORE = {}; // 데모 모드용 메모리
+
+const CONFIG_KEY = 'standup_firebase_config';
+const HARDCODED_CONFIG = {
+  apiKey: "AIzaSyDd85t65S0F5sZSsiYCwQMSnmw0Jt3HlEg",
+  authDomain: "standupp-7cfeb.firebaseapp.com",
+  projectId: "standupp-7cfeb",
+  storageBucket: "standupp-7cfeb.firebasestorage.app",
+  messagingSenderId: "390358747706",
+  appId: "1:390358747706:web:aaec773c9d95397ea78303"
+};
+
+// 항상 고정 config로 자동 연결
+window.addEventListener('DOMContentLoaded', () => {
+  startApp(HARDCODED_CONFIG);
+});
+
+function setupError(msg) {
+  const el = document.getElementById('setup-error');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+}
+
+function connectFirebase() {
+  document.getElementById('setup-error').style.display = 'none';
+  const raw = document.getElementById('config-input').value.trim();
+  if (!raw) { setupError('설정을 붙여넣어 주세요.'); return; }
+
+  let cfg;
+  try {
+    // 이미 JSON이면 바로 파싱, JS 객체 형태면 변환
+    let cleaned = raw;
+    // JS 객체 형태일 경우 (따옴표 없는 키) → 따옴표 추가
+    if (!raw.startsWith('"') && raw.includes(':')) {
+      cleaned = raw
+        .replace(/\/\/.*/g, '')
+        .replace(/,\s*([\]}])/g, '$1')         // trailing comma
+        .replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g, '$1"$2":'); // 키 따옴표
+    }
+    cfg = JSON.parse(cleaned);
+    if (!cfg.projectId) throw new Error('projectId가 없어요');
+    if (!cfg.apiKey)    throw new Error('apiKey가 없어요');
+  } catch(e) {
+    setupError('설정 형식이 올바르지 않아요: ' + e.message); return;
+  }
+
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+
+function startApp(cfg) {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.firestore();
+    db.enablePersistence().catch(() => {});
+    initApp();
+  } catch(e) {
+    console.error('Firebase 연결 실패:', e);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  FIRESTORE HELPERS
+// ═══════════════════════════════════════════════════
+const FS = {
+  async get(col, doc) {
+    if (isDemo) return DEMO_STORE[col + '/' + doc] || null;
+    try {
+      const snap = await db.collection(col).doc(doc).get();
+      return snap.exists ? snap.data() : null;
+    } catch { return null; }
+  },
+  async set(col, doc, data) {
+    if (isDemo) { DEMO_STORE[col + '/' + doc] = data; return; }
+    try { await db.collection(col).doc(doc).set(data); } catch(e) { console.error(e); }
+  },
+  async del(col, doc) {
+    if (isDemo) { delete DEMO_STORE[col + '/' + doc]; return; }
+    try { await db.collection(col).doc(doc).delete(); } catch {}
+  },
+  async getAll(col) {
+    if (isDemo) {
+      return Object.entries(DEMO_STORE)
+        .filter(([k]) => k.startsWith(col + '/'))
+        .map(([k, v]) => ({ id: k.replace(col + '/', ''), ...v }));
+    }
+    try {
+      const snap = await db.collection(col).get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch { return []; }
+  },
+  // 실시간 리스너 (관리자 목록 실시간 업데이트용)
+  listen(col, cb) {
+    if (isDemo) return () => {};
+    return db.collection(col).onSnapshot(snap => {
+      cb(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, () => {});
+  }
+};
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let settings = {
+  eventName: '스탠드업 부스',
+  stampGoal: 5,
+  rewardDesc: '한정 굿즈 증정! 직원에게 카드를 보여주세요 🎁',
+  adminPw: '1234'
+};
+let allCustomers = [];  // 실시간 리스너로 유지
+let recentStamps = [];
+let unsubCustomers = null;
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+async function initApp() {
+  // 네트워크 상태
+  updateNetStatus();
+  window.addEventListener('online',  () => { updateNetStatus(); toast('인터넷 연결됐어요 ✅', 'success'); });
+  window.addEventListener('offline', () => { updateNetStatus(); toast('오프라인 — 로컬 캐시로 계속 동작해요 📦', ''); });
+
+  // settings 로드
+  const savedSettings = await FS.get('config', 'settings');
+  if (savedSettings) settings = { ...settings, ...savedSettings };
+  document.getElementById('home-sub').textContent = settings.eventName + ' — 굿즈를 사면 스탬프를 모아보세요!';
+
+  // 최근 발급 로드
+  const recentData = await FS.get('config', 'recent');
+  if (recentData?.list) recentStamps = recentData.list;
+
+  // 고객 목록 실시간 리스너
+  unsubCustomers = FS.listen('customers', docs => {
+    allCustomers = docs;
+    // 현재 고객 카드 화면이면 자동 갱신
+    if (!document.getElementById('page-customer-card').classList.contains('hidden') && currentViewNick) {
+      renderCustomerCard(currentViewNick);
+    }
+    // 관리자 목록 탭이 열려있으면 갱신
+    if (!document.getElementById('tab-content-list').classList.contains('hidden')) {
+      renderCustomerList();
+    }
+    // 통계 업데이트
+    updateStats();
+  });
+
+  setNetStatus('online', isDemo ? '데모 모드' : 'Firebase 연결됨');
+  showPage('home');
+}
+
+let currentViewNick = null;
+
+// ═══════════════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  const el = document.getElementById('page-' + id);
+  if (!el) return;
+  el.classList.remove('hidden');
+  el.classList.remove('page'); void el.offsetWidth; el.classList.add('page');
+  // 직원 메뉴에서만 연결 상태 뱃지 표시
+  document.getElementById('net-badge-wrap').style.display = id === 'admin' ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════
+function toast(msg, type = '') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 2800);
+}
+
+// ═══════════════════════════════════════════════════
+//  NETWORK STATUS
+// ═══════════════════════════════════════════════════
+function updateNetStatus() {
+  if (isDemo) return;
+  setNetStatus(navigator.onLine ? 'online' : 'offline',
+               navigator.onLine ? 'Firebase 연결됨' : '오프라인 — 캐시 동작 중');
+}
+function setNetStatus(type, label) {
+  const badge = document.getElementById('net-badge');
+  const lbl   = document.getElementById('net-label');
+  if (!badge) return;
+  badge.className = 'net-badge ' + type;
+  lbl.textContent = label;
+}
+
+// ═══════════════════════════════════════════════════
+//  CUSTOMER FLOW
+// ═══════════════════════════════════════════════════
+async function customerLogin() {
+  const nick = document.getElementById('customer-nick-input').value.trim();
+  if (!nick) { toast('닉네임을 입력해주세요!', 'error'); return; }
+
+  const data = await FS.get('customers', nick);
+  if (!data) {
+    document.getElementById('notfound-nick').textContent = nick;
+    showPage('customer-notfound');
+    document.getElementById('customer-nick-input').value = '';
+    return;
+  }
+
+  currentViewNick = nick;
+  renderCustomerCard(nick);
+  showPage('customer-card');
+  document.getElementById('customer-nick-input').value = '';
+}
+
+function renderCustomerCard(nick) {
+  const cached = allCustomers.find(c => c.id === nick);
+  if (!cached && !isDemo) {
+    // 캐시 없으면 Firestore에서 직접 가져오기
+    FS.get('customers', nick).then(data => { if(data) _renderCard(nick, data); });
+    return;
+  }
+  if (cached) _renderCard(nick, cached);
+  else FS.get('customers', nick).then(data => { if(data) _renderCard(nick, data); });
+}
+
+function _renderCard(nick, data) {
+  const goal   = settings.stampGoal;
+  const stamps = data.stamps || 0;
+
+  document.getElementById('card-nick').textContent  = nick;
+  document.getElementById('card-name').textContent  = nick;
+  document.getElementById('card-sub').textContent   = `스탬프 ${stamps}개 보유 (목표: ${goal}개)`;
+  document.getElementById('card-avatar').textContent = nick[0].toUpperCase();
+  document.getElementById('card-reward').textContent = settings.rewardDesc;
+
+  const grid = document.getElementById('stamp-grid');
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${Math.min(goal, 5)}, 1fr)`;
+  for (let i = 0; i < goal; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'stamp-cell' + (i < stamps ? ' filled' : '');
+    grid.appendChild(cell);
+  }
+
+  const pct = Math.min(100, (stamps / goal) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${stamps} / ${goal}개`;
+
+  const slot = document.getElementById('reward-slot');
+  slot.innerHTML = stamps >= goal ? `
+    <div class="reward-banner">
+      <span class="trophy">🏆</span>
+      <h3>스탬프 완성! 보상을 받으세요!</h3>
+      <p>${settings.rewardDesc}</p>
+    </div>` : '';
+}
+
+// ═══════════════════════════════════════════════════
+//  STAFF FLOW
+// ═══════════════════════════════════════════════════
+function staffLogin() {
+  const pw = document.getElementById('admin-pw-input').value;
+  if (pw !== settings.adminPw) { toast('비밀번호가 틀렸습니다', 'error'); return; }
+  document.getElementById('admin-pw-input').value = '';
+  switchTab('stamp');
+  renderRecentList();
+  showPage('admin');
+}
+
+async function giveStamp() {
+  const nick = document.getElementById('stamp-nick-input').value.trim();
+  if (!nick) { toast('닉네임을 입력해주세요', 'error'); return; }
+
+  let data = await FS.get('customers', nick);
+  if (!data) data = { stamps: 0, rewarded: false };
+
+  if (data.stamps >= settings.stampGoal && data.rewarded) {
+    toast('이미 보상을 받은 고객이에요 🏆'); return;
+  }
+  data.stamps = Math.min(data.stamps + 1, settings.stampGoal);
+  if (data.stamps >= settings.stampGoal) data.rewarded = true;
+  await FS.set('customers', nick, data);
+
+  addRecent(nick, data.stamps);
+  toast(`${nick}님 스탬프 추가! (${data.stamps}/${settings.stampGoal}) ⭐`, 'success');
+  document.getElementById('stamp-nick-input').value = '';
+  renderRecentList();
+}
+
+async function removeStamp() {
+  const nick = document.getElementById('stamp-nick-input').value.trim();
+  if (!nick) { toast('닉네임을 입력해주세요', 'error'); return; }
+
+  const data = await FS.get('customers', nick);
+  if (!data) { toast(`${nick}님의 카드가 없어요`, 'error'); return; }
+  if (data.stamps <= 0) { toast('차감할 스탬프가 없어요', 'error'); return; }
+
+  data.stamps -= 1;
+  if (data.stamps < settings.stampGoal) data.rewarded = false;
+  await FS.set('customers', nick, data);
+
+  addRecent(nick, data.stamps);
+  toast(`${nick}님 스탬프 차감 (${data.stamps}/${settings.stampGoal})`, '');
+  document.getElementById('stamp-nick-input').value = '';
+  renderRecentList();
+}
+
+async function addRecent(nick, stamps) {
+  recentStamps = recentStamps.filter(r => r.nick !== nick);
+  recentStamps.unshift({ nick, stamps, goal: settings.stampGoal, time: Date.now() });
+  if (recentStamps.length > 20) recentStamps = recentStamps.slice(0, 20);
+  await FS.set('config', 'recent', { list: recentStamps });
+}
+
+function renderRecentList() {
+  const el = document.getElementById('recent-list');
+  if (recentStamps.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="icon">📭</div><p>아직 발급 내역이 없어요</p></div>';
+    return;
+  }
+  el.innerHTML = recentStamps.map(r => {
+    const goal = r.goal || settings.stampGoal;
+    const done = r.stamps >= goal;
+    const dots = Array.from({length: goal}, (_, i) =>
+      `<span class="mini-dot ${i < r.stamps ? 'filled' : ''}"></span>`).join('');
+    return `<div class="customer-row">
+      <div class="avatar" style="width:32px;height:32px;font-size:14px;">${r.nick[0].toUpperCase()}</div>
+      <div class="info"><div class="name">${r.nick}</div><div class="mini-stamps">${dots}</div></div>
+      ${done ? '<span class="rewarded-badge">🏆 완성</span>' : `<span style="font-size:12px;color:var(--text-muted);font-weight:700;">${r.stamps}/${goal}</span>`}
+    </div>`;
+  }).join('');
+}
+
+function renderCustomerList(search = '') {
+  const el = document.getElementById('customer-list');
+  let rows = search
+    ? allCustomers.filter(c => c.id.includes(search))
+    : [...allCustomers];
+
+  rows.sort((a, b) => (b.stamps || 0) - (a.stamps || 0));
+
+  if (rows.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="icon">👥</div><p>등록된 고객이 없어요</p></div>';
+    return;
+  }
+
+  el.innerHTML = rows.map(r => {
+    const done = (r.stamps || 0) >= settings.stampGoal;
+    const dots = Array.from({length: settings.stampGoal}, (_, i) =>
+      `<span class="mini-dot ${i < r.stamps ? 'filled' : ''}"></span>`).join('');
+    const nick = r.id;
+    return `<div class="customer-row">
+      <div class="avatar" style="width:32px;height:32px;font-size:14px;">${nick[0].toUpperCase()}</div>
+      <div class="info"><div class="name">${nick}</div><div class="mini-stamps">${dots}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        ${done ? '<span class="rewarded-badge">🏆 완성</span>' : `<span style="font-size:12px;color:var(--text-muted);font-weight:700;">${r.stamps||0}/${settings.stampGoal}</span>`}
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-sm btn-danger"  onclick="quickStamp('${nick}',-1)">－1</button>
+          <button class="btn btn-sm btn-success" onclick="quickStamp('${nick}',+1)">＋1</button>
+          <button class="btn btn-sm btn-danger"  onclick="deleteCustomer('${nick}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function quickStamp(nick, delta) {
+  const data = await FS.get('customers', nick);
+  if (!data) return;
+  if (delta < 0 && data.stamps <= 0) { toast('차감할 스탬프가 없어요', 'error'); return; }
+  data.stamps = Math.max(0, Math.min(settings.stampGoal, data.stamps + delta));
+  if (data.stamps < settings.stampGoal) data.rewarded = false;
+  if (data.stamps >= settings.stampGoal) data.rewarded = true;
+  await FS.set('customers', nick, data);
+  addRecent(nick, data.stamps);
+  toast(`${nick}님 ${delta > 0 ? '스탬프 추가' : '스탬프 차감'} (${data.stamps}/${settings.stampGoal})`, delta > 0 ? 'success' : '');
+}
+
+async function deleteCustomer(nick) {
+  if (!confirm(`"${nick}"님의 카드를 삭제할까요?\n스탬프 데이터가 모두 사라져요.`)) return;
+  await FS.del('customers', nick);
+  recentStamps = recentStamps.filter(r => r.nick !== nick);
+  await FS.set('config', 'recent', { list: recentStamps });
+  toast(`${nick}님 카드가 삭제됐어요`, '');
+  renderRecentList();
+}
+
+function updateStats() {
+  const totalEl    = document.getElementById('stat-total');
+  const rewardedEl = document.getElementById('stat-rewarded');
+  if (!totalEl) return;
+  totalEl.textContent    = allCustomers.length;
+  rewardedEl.textContent = allCustomers.filter(c => (c.stamps || 0) >= settings.stampGoal).length;
+}
+
+// ═══════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════
+function switchTab(tab) {
+  ['stamp','list','settings'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('tab-content-' + t).classList.toggle('hidden', t !== tab);
+  });
+  if (tab === 'list') renderCustomerList();
+  if (tab === 'settings') loadSettingsForm();
+}
+
+// ═══════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════
+function loadSettingsForm() {
+  document.getElementById('set-event-name').value  = settings.eventName;
+  document.getElementById('set-stamp-goal').value  = settings.stampGoal;
+  document.getElementById('set-reward-desc').value = settings.rewardDesc;
+  document.getElementById('set-admin-pw').value    = '';
+}
+
+async function saveSettings() {
+  const goal = parseInt(document.getElementById('set-stamp-goal').value);
+  if (isNaN(goal) || goal < 1 || goal > 20) { toast('스탬프 목표는 1~20 사이로 입력해주세요', 'error'); return; }
+  const newPw = document.getElementById('set-admin-pw').value;
+  settings.eventName  = document.getElementById('set-event-name').value.trim() || settings.eventName;
+  settings.stampGoal  = goal;
+  settings.rewardDesc = document.getElementById('set-reward-desc').value.trim() || settings.rewardDesc;
+  if (newPw) settings.adminPw = newPw;
+  await FS.set('config', 'settings', settings);
+  document.getElementById('home-sub').textContent = settings.eventName + ' — 굿즈를 사면 스탬프를 모아보세요!';
+  toast('설정이 저장됐어요 💾', 'success');
+}
+
+async function resetAllData() {
+  if (!confirm('⚠️ 정말 모든 스탬프 데이터를 초기화할까요?\n되돌릴 수 없어요!')) return;
+  const customers = await FS.getAll('customers');
+  for (const c of customers) await FS.del('customers', c.id);
+  recentStamps = [];
+  await FS.set('config', 'recent', { list: [] });
+  renderRecentList();
+  toast('전체 데이터가 초기화됐어요', '');
+}
+</script>
+
+
+</body></html>
