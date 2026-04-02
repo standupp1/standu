@@ -912,7 +912,8 @@ function _renderCard(nick, data) {
 
   document.getElementById('card-nick').textContent  = nick;
   document.getElementById('card-name').textContent  = nick;
-  document.getElementById('card-sub').textContent   = `스탬프 ${stamps}개 보유 (목표: ${goal}개)`;
+  const rewardCount = data.rewardCount || 0;
+  document.getElementById('card-sub').textContent   = `스탬프 ${stamps}개 보유 (목표: ${goal}개)${rewardCount > 0 ? ` · 누적 ${rewardCount}회 완성` : ''}`;
   document.getElementById('card-avatar').textContent = nick[0].toUpperCase();
   document.getElementById('card-reward').textContent = settings.rewardDesc;
 
