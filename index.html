@@ -1351,10 +1351,39 @@ function renderNoticeManage(notices) {
   if (!el) return;
   if (notices.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--text-muted);">등록된 일정이 없어요</p>'; return; }
   el.innerHTML = notices.map((n, i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
-      <div style="flex:1;font-size:13px;font-weight:700;">${n.title}<br><span style="font-weight:400;color:var(--text-muted);">${n.date}</span></div>
-      <button class="btn btn-sm btn-danger" onclick="deleteNotice(${i})">🗑</button>
+    <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;font-size:13px;font-weight:700;">${n.title}<br><span style="font-weight:400;color:var(--text-muted);">${n.date}</span></div>
+        <button class="btn btn-sm btn-secondary" onclick="editNotice(${i})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteNotice(${i})">🗑</button>
+      </div>
+      <div id="notice-edit-${i}" style="display:none;margin-top:8px;flex-direction:column;gap:6px;">
+        <input type="text" id="notice-edit-title-${i}" value="${n.title}" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <input type="text" id="notice-edit-date-${i}" value="${n.date}" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-primary" onclick="saveNotice(${i})">💾 저장</button>
+          <button class="btn btn-sm btn-secondary" onclick="cancelNotice(${i})">취소</button>
+        </div>
+      </div>
     </div>`).join('');
+}
+
+function editNotice(i) {
+  document.getElementById(`notice-edit-${i}`).style.display = 'flex';
+}
+function cancelNotice(i) {
+  document.getElementById(`notice-edit-${i}`).style.display = 'none';
+}
+async function saveNotice(i) {
+  const title = document.getElementById(`notice-edit-title-${i}`).value.trim();
+  const date  = document.getElementById(`notice-edit-date-${i}`).value.trim();
+  if (!title || !date) { toast('행사명과 날짜/장소를 입력해주세요', 'error'); return; }
+  const data = await FS.get('config', 'notices');
+  const notices = data?.list || [];
+  notices[i] = { title, date };
+  await FS.set('config', 'notices', { list: notices });
+  toast('일정이 수정됐어요! 📅', 'success');
+  loadNotices();
 }
 
 async function addNotice() {
