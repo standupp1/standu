@@ -1297,11 +1297,44 @@ function renderArtistManage(list) {
   if (!el) return;
   if (list.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--text-muted);">등록된 작가가 없어요</p>'; return; }
   el.innerHTML = list.map((a, i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
-      <img src="${a.image}" alt="${a.name}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--stamp-empty);">
-      <div style="flex:1;font-size:13px;font-weight:700;">${a.name}</div>
-      <button class="btn btn-sm btn-danger" onclick="deleteArtist(${i})">🗑</button>
+    <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="${a.image}" alt="${a.name}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--stamp-empty);">
+        <div style="flex:1;font-size:13px;font-weight:700;">${a.name}</div>
+        <button class="btn btn-sm btn-secondary" onclick="editArtist(${i})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteArtist(${i})">🗑</button>
+      </div>
+      <div id="artist-edit-${i}" style="display:none;margin-top:8px;flex-direction:column;gap:6px;">
+        <input type="text" id="artist-edit-name-${i}" value="${a.name}" placeholder="작가 이름" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <input type="text" id="artist-edit-image-${i}" value="${a.image||''}" placeholder="프로필 이미지 URL" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <input type="text" id="artist-edit-desc-${i}" value="${a.desc||''}" placeholder="소개글" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <input type="text" id="artist-edit-sns-${i}" value="${a.sns||''}" placeholder="SNS 링크" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-primary" onclick="saveArtist(${i})">💾 저장</button>
+          <button class="btn btn-sm btn-secondary" onclick="cancelArtist(${i})">취소</button>
+        </div>
+      </div>
     </div>`).join('');
+}
+
+function editArtist(i) {
+  document.getElementById(`artist-edit-${i}`).style.display = 'flex';
+}
+function cancelArtist(i) {
+  document.getElementById(`artist-edit-${i}`).style.display = 'none';
+}
+async function saveArtist(i) {
+  const name  = document.getElementById(`artist-edit-name-${i}`).value.trim();
+  const image = document.getElementById(`artist-edit-image-${i}`).value.trim();
+  const desc  = document.getElementById(`artist-edit-desc-${i}`).value.trim();
+  const sns   = document.getElementById(`artist-edit-sns-${i}`).value.trim();
+  if (!name || !sns) { toast('이름과 SNS 링크는 필수예요', 'error'); return; }
+  const data = await FS.get('config', 'artists');
+  const list = data?.list || [];
+  list[i] = { name, image, desc, sns };
+  await FS.set('config', 'artists', { list });
+  toast('작가 정보가 수정됐어요! 🎨', 'success');
+  loadArtists();
 }
 
 async function addArtist() {
