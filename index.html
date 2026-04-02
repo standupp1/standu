@@ -1242,7 +1242,7 @@ async function loadMembers() {
   }
   el.innerHTML = list.map((a, i) => `
     <div class="card" style="display:flex;align-items:center;gap:16px;">
-      <img src="${a.image}" onerror="this.src=''" alt="${a.name}"
+      <img src="${a.image}" onerror="this.src='https://i.imgur.com/NOtel4d.png';this.style.background='#1a1f5e'" alt="${a.name}"
         style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;background:var(--stamp-empty);">
       <div style="flex:1;min-width:0;">
         <div style="font-size:16px;font-weight:800;margin-bottom:6px;">${a.name}</div>
@@ -1335,7 +1335,7 @@ async function loadArtists() {
   }
   el.innerHTML = list.map((a, i) => `
     <div class="card" style="display:flex;align-items:center;gap:16px;">
-      <img src="${a.image}" onerror="this.src=''" alt="${a.name}"
+      <img src="${a.image}" onerror="this.src='https://i.imgur.com/NOtel4d.png';this.style.background='#1a1f5e'" alt="${a.name}"
         style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;background:var(--stamp-empty);">
       <div style="flex:1;min-width:0;">
        <div style="font-size:16px;font-weight:800;margin-bottom:6px;">${a.name}</div>
