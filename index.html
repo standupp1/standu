@@ -1152,6 +1152,8 @@ function renderAnnounceManage(list) {
     <div style="padding:8px 0;border-bottom:1px solid var(--border);" id="announce-item-${i}">
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="flex:1;font-size:13px;font-weight:700;">${a.title}<br><span style="font-weight:400;color:var(--text-muted);">${a.content}</span></div>
+        <button class="btn btn-sm btn-secondary" onclick="moveAnnounce(${i},-1)">▲</button>
+        <button class="btn btn-sm btn-secondary" onclick="moveAnnounce(${i},+1)">▼</button>
         <button class="btn btn-sm btn-secondary" onclick="editAnnounce(${i})">✏️</button>
         <button class="btn btn-sm btn-danger" onclick="deleteAnnounce(${i})">🗑</button>
       </div>
@@ -1171,6 +1173,15 @@ function editAnnounce(i) {
 }
 function cancelAnnounce(i) {
   document.getElementById(`announce-edit-${i}`).style.display = 'none';
+}
+  async function moveAnnounce(i, dir) {
+  const data = await FS.get('config', 'announces');
+  const list = data?.list || [];
+  const j = i + dir;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  await FS.set('config', 'announces', { list });
+  loadAnnounces();
 }
 async function saveAnnounce(i) {
   const title = document.getElementById(`announce-edit-title-${i}`).value.trim();
@@ -1262,6 +1273,8 @@ function renderMemberManage(list) {
       <div style="display:flex;align-items:center;gap:8px;">
         <img src="${a.image}" alt="${a.name}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--stamp-empty);">
         <div style="flex:1;font-size:13px;font-weight:700;">${a.name}</div>
+        <button class="btn btn-sm btn-secondary" onclick="moveMember(${i},-1)">▲</button>
+        <button class="btn btn-sm btn-secondary" onclick="moveMember(${i},+1)">▼</button>
         <button class="btn btn-sm btn-secondary" onclick="editMember(${i})">✏️</button>
         <button class="btn btn-sm btn-danger" onclick="deleteMember(${i})">🗑</button>
       </div>
@@ -1283,6 +1296,15 @@ function editMember(i) {
 }
 function cancelMember(i) {
   document.getElementById(`member-edit-${i}`).style.display = 'none';
+}
+  async function moveMember(i, dir) {
+  const data = await FS.get('config', 'members');
+  const list = data?.list || [];
+  const j = i + dir;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  await FS.set('config', 'members', { list });
+  loadMembers();
 }
 async function saveMember(i) {
   const name  = document.getElementById(`member-edit-name-${i}`).value.trim();
@@ -1355,6 +1377,8 @@ function renderArtistManage(list) {
       <div style="display:flex;align-items:center;gap:8px;">
         <img src="${a.image}" alt="${a.name}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--stamp-empty);">
         <div style="flex:1;font-size:13px;font-weight:700;">${a.name}</div>
+        <button class="btn btn-sm btn-secondary" onclick="moveArtist(${i},-1)">▲</button>
+        <button class="btn btn-sm btn-secondary" onclick="moveArtist(${i},+1)">▼</button>
         <button class="btn btn-sm btn-secondary" onclick="editArtist(${i})">✏️</button>
         <button class="btn btn-sm btn-danger" onclick="deleteArtist(${i})">🗑</button>
       </div>
@@ -1376,6 +1400,15 @@ function editArtist(i) {
 }
 function cancelArtist(i) {
   document.getElementById(`artist-edit-${i}`).style.display = 'none';
+}
+  async function moveArtist(i, dir) {
+  const data = await FS.get('config', 'artists');
+  const list = data?.list || [];
+  const j = i + dir;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  await FS.set('config', 'artists', { list });
+  loadArtists();
 }
 async function saveArtist(i) {
   const name  = document.getElementById(`artist-edit-name-${i}`).value.trim();
@@ -1439,6 +1472,8 @@ function renderNoticeManage(notices) {
     <div style="padding:8px 0;border-bottom:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="flex:1;font-size:13px;font-weight:700;">${n.title}<br><span style="font-weight:400;color:var(--text-muted);">${n.date}</span></div>
+       <button class="btn btn-sm btn-secondary" onclick="moveNotice(${i},-1)">▲</button>
+        <button class="btn btn-sm btn-secondary" onclick="moveNotice(${i},+1)">▼</button>
         <button class="btn btn-sm btn-secondary" onclick="editNotice(${i})">✏️</button>
         <button class="btn btn-sm btn-danger" onclick="deleteNotice(${i})">🗑</button>
       </div>
@@ -1458,6 +1493,15 @@ function editNotice(i) {
 }
 function cancelNotice(i) {
   document.getElementById(`notice-edit-${i}`).style.display = 'none';
+}
+  async function moveNotice(i, dir) {
+  const data = await FS.get('config', 'notices');
+  const notices = data?.list || [];
+  const j = i + dir;
+  if (j < 0 || j >= notices.length) return;
+  [notices[i], notices[j]] = [notices[j], notices[i]];
+  await FS.set('config', 'notices', { list: notices });
+  loadNotices();
 }
 async function saveNotice(i) {
   const title = document.getElementById(`notice-edit-title-${i}`).value.trim();
