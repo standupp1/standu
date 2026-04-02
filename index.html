@@ -1237,11 +1237,44 @@ function renderMemberManage(list) {
   if (!el) return;
   if (list.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--text-muted);">등록된 멤버가 없어요</p>'; return; }
   el.innerHTML = list.map((a, i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
-      <img src="${a.image}" alt="${a.name}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--stamp-empty);">
-      <div style="flex:1;font-size:13px;font-weight:700;">${a.name}</div>
-      <button class="btn btn-sm btn-danger" onclick="deleteMember(${i})">🗑</button>
+    <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="${a.image}" alt="${a.name}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--stamp-empty);">
+        <div style="flex:1;font-size:13px;font-weight:700;">${a.name}</div>
+        <button class="btn btn-sm btn-secondary" onclick="editMember(${i})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMember(${i})">🗑</button>
+      </div>
+      <div id="member-edit-${i}" style="display:none;margin-top:8px;flex-direction:column;gap:6px;">
+        <input type="text" id="member-edit-name-${i}" value="${a.name}" placeholder="멤버 이름" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <input type="text" id="member-edit-image-${i}" value="${a.image||''}" placeholder="프로필 이미지 URL" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <input type="text" id="member-edit-desc-${i}" value="${a.desc||''}" placeholder="소개글" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <input type="text" id="member-edit-sns-${i}" value="${a.sns||''}" placeholder="SNS 링크" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-primary" onclick="saveMember(${i})">💾 저장</button>
+          <button class="btn btn-sm btn-secondary" onclick="cancelMember(${i})">취소</button>
+        </div>
+      </div>
     </div>`).join('');
+}
+
+function editMember(i) {
+  document.getElementById(`member-edit-${i}`).style.display = 'flex';
+}
+function cancelMember(i) {
+  document.getElementById(`member-edit-${i}`).style.display = 'none';
+}
+async function saveMember(i) {
+  const name  = document.getElementById(`member-edit-name-${i}`).value.trim();
+  const image = document.getElementById(`member-edit-image-${i}`).value.trim();
+  const desc  = document.getElementById(`member-edit-desc-${i}`).value.trim();
+  const sns   = document.getElementById(`member-edit-sns-${i}`).value.trim();
+  if (!name) { toast('이름은 필수예요', 'error'); return; }
+  const data = await FS.get('config', 'members');
+  const list = data?.list || [];
+  list[i] = { name, image, desc, sns };
+  await FS.set('config', 'members', { list });
+  toast('멤버 정보가 수정됐어요! 👥', 'success');
+  loadMembers();
 }
 
 async function addMember() {
