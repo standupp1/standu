@@ -350,6 +350,21 @@ body::before{
   </div>
   <div id="member-list"></div>
 </div>
+    <!-- LOG -->
+<div id="page-log" class="page hidden">
+  <button class="back-btn" onclick="showPage('admin')">← 돌아가기</button>
+  <div class="header">
+    <div class="header-badge">📋 관리 로그</div>
+    <h1>활동 <span>기록</span></h1>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span style="font-size:13px;color:var(--text-muted);">최근 100개까지 표시</span>
+      <button class="btn btn-sm btn-danger" onclick="clearLogs()">🗑 로그 삭제</button>
+    </div>
+    <div id="log-list"></div>
+  </div>
+</div>
     <!-- ARTISTS -->
 <div id="page-artists" class="page hidden">
   <button class="back-btn" onclick="showPage('home')">← 돌아가기</button>
@@ -634,6 +649,7 @@ body::before{
     <div class="card">
       <div class="card-title">📥 데이터 백업</div>
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">고객 스탬프 데이터를 CSV로 내보내요.</p>
+      <button class="btn btn-secondary" style="margin-bottom:12px;" onclick="showPage('log');loadLogs();">📋 관리 로그 보기</button>
       <button class="btn btn-success" onclick="exportCSV()">📥 데이터 내보내기 (CSV)</button>
     </div>
     <div class="card" style="margin-top:16px;border-color:#fca5a5;">
@@ -949,6 +965,7 @@ async function giveStamp() {
   if (data.stamps >= settings.stampGoal) data.rewarded = true;
   await FS.set('customers', nick, data);
 
+  await addLog('스탬프 추가', `${nick}님 (${data.stamps}/${settings.stampGoal})`);
   await addRecent(nick, data.stamps);
   toast(`${nick}님 스탬프 추가! (${data.stamps}/${settings.stampGoal}) ⭐`, 'success');
   document.getElementById('stamp-nick-input').value = '';
@@ -967,6 +984,7 @@ async function removeStamp() {
   if (data.stamps < settings.stampGoal) data.rewarded = false;
   await FS.set('customers', nick, data);
 
+  await addLog('스탬프 차감', `${nick}님 (${data.stamps}/${settings.stampGoal})`);
   await addRecent(nick, data.stamps);
   toast(`${nick}님 스탬프 차감 (${data.stamps}/${settings.stampGoal})`, '');
   document.getElementById('stamp-nick-input').value = '';
@@ -1041,6 +1059,7 @@ async function quickStamp(nick, delta) {
   if (data.stamps < settings.stampGoal) data.rewarded = false;
   if (data.stamps >= settings.stampGoal) data.rewarded = true;
   await FS.set('customers', nick, data);
+  await addLog(delta > 0 ? '스탬프 추가' : '스탬프 차감', `${nick}님 (${data.stamps}/${settings.stampGoal})`);
   await addRecent(nick, data.stamps);
   renderRecentList();
   toast(`${nick}님 ${delta > 0 ? '스탬프 추가' : '스탬프 차감'} (${data.stamps}/${settings.stampGoal})`, delta > 0 ? 'success' : '');
@@ -1051,6 +1070,7 @@ async function deleteCustomer(nick) {
   await FS.del('customers', nick);
   recentStamps = recentStamps.filter(r => r.nick !== nick);
   await FS.set('config', 'recent', { list: recentStamps });
+  await addLog('고객 삭제', `${nick}님 카드 삭제`);
   toast(`${nick}님 카드가 삭제됐어요`, '');
   renderRecentList();
 }
@@ -1102,6 +1122,7 @@ async function saveSettings() {
   if (newPw) settings.adminPw = newPw;
   await FS.set('config', 'settings', settings);
   document.getElementById('home-sub').textContent = settings.eventName + ' — 굿즈를 사면 스탬프를 모아보세요!';
+  await addLog('설정 변경', `이벤트명: ${settings.eventName}, 목표: ${settings.stampGoal}개`);
   toast('설정이 저장됐어요 💾', 'success');
 }
   // ═══════════════════════════════════════════════════
@@ -1385,7 +1406,6 @@ async function addArtist() {
   document.getElementById('set-artist-sns').value   = '';
   toast('작가가 추가됐어요! 🎨', 'success');
   loadArtists();
-  loadMembers();
 }
 
 async function deleteArtist(idx) {
@@ -1395,7 +1415,6 @@ async function deleteArtist(idx) {
   await FS.set('config', 'artists', { list });
   toast('작가가 삭제됐어요', '');
   loadArtists();
-  loadMembers();
 }
 async function loadNotices() {
   const data = await FS.get('config', 'notices');
@@ -1498,6 +1517,7 @@ async function exportCSV() {
   data.stamps = Math.min(data.stamps + 1, settings.stampGoal);
   if (data.stamps >= settings.stampGoal) data.rewarded = true;
   await FS.set('customers', nick, data);
+  await addLog('스탬프 추가', `${nick}님 빠른적립 (${data.stamps}/${settings.stampGoal})`);
   await addRecent(nick, data.stamps);
   toast(`${nick}님 스탬프 적립! (${data.stamps}/${settings.stampGoal}) ⭐`, 'success');
   document.getElementById('quick-nick-input').value = '';
@@ -1508,8 +1528,58 @@ async function exportCSV() {
   if (pw !== settings.adminPw) { toast('비밀번호가 틀렸습니다', 'error'); return; }
   if (!confirm(`"${nick}"님의 보상을 확인했습니다.\n스탬프를 초기화할까요?`)) return;
   await FS.set('customers', nick, { stamps: 0, rewarded: false });
+  await addLog('보상 확인', `${nick}님 보상 확인 및 스탬프 초기화`);
   toast(`${nick}님 스탬프가 초기화됐어요`, 'success');
   renderCustomerCard(nick);
+}
+  // ═══════════════════════════════════════════════════
+//  LOGS
+// ═══════════════════════════════════════════════════
+async function addLog(action, detail) {
+  const data = await FS.get('config', 'logs');
+  const list = data?.list || [];
+  list.unshift({
+    action,
+    detail,
+    time: Date.now()
+  });
+  if (list.length > 100) list.splice(100);
+  await FS.set('config', 'logs', { list });
+}
+
+async function loadLogs() {
+  const data = await FS.get('config', 'logs');
+  const list = data?.list || [];
+  const el = document.getElementById('log-list');
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="icon">📭</div><p>로그가 없어요</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(l => {
+    const date = new Date(l.time);
+    const timeStr = `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,'0')}.${String(date.getDate()).padStart(2,'0')} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+    const colorMap = {
+      '스탬프 추가': '#dcfce7', '스탬프 차감': '#fee2e2',
+      '보상 확인': '#fef3c7', '고객 삭제': '#fee2e2',
+      '설정 변경': '#f3e8ff'
+    };
+    const bg = colorMap[l.action] || '#f3f4f6';
+    return `<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+      <span style="background:${bg};padding:3px 10px;border-radius:99px;font-size:11px;font-weight:800;white-space:nowrap;">${l.action}</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">${l.detail}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${timeStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function clearLogs() {
+  if (!confirm('로그를 모두 삭제할까요?')) return;
+  await FS.set('config', 'logs', { list: [] });
+  toast('로그가 삭제됐어요', '');
+  loadLogs();
 }
   async function resetAllData() {
   if (!confirm('⚠️ 정말 모든 스탬프 데이터를 초기화할까요?\n되돌릴 수 없어요!')) return;
