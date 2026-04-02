@@ -1134,7 +1134,7 @@ function renderAnnounceManage(list) {
         <button class="btn btn-sm btn-secondary" onclick="editAnnounce(${i})">✏️</button>
         <button class="btn btn-sm btn-danger" onclick="deleteAnnounce(${i})">🗑</button>
       </div>
-      <div id="announce-edit-${i}" style="display:none;margin-top:8px;display:flex;flex-direction:column;gap:6px;">
+     <div id="announce-edit-${i}" style="display:none;margin-top:8px;flex-direction:column;gap:6px;">
         <input type="text" id="announce-edit-title-${i}" value="${a.title}" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
         <textarea id="announce-edit-content-${i}" rows="2" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;resize:vertical;">${a.content}</textarea>
         <div style="display:flex;gap:6px;">
