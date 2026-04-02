@@ -1013,7 +1013,7 @@ function renderRecentList() {
     return `<div class="customer-row">
       <div class="avatar" style="width:32px;height:32px;font-size:14px;">${r.nick[0].toUpperCase()}</div>
       <div class="info"><div class="name">${r.nick}</div><div class="mini-stamps">${dots}</div></div>
-      ${done ? '<span class="rewarded-badge">🏆 완성</span>' : `<span style="font-size:12px;color:var(--text-muted);font-weight:700;">${r.stamps}/${goal}</span>`}
+      ${done ? `<span class="rewarded-badge">🏆 완성${r.rewardCount > 1 ? ` x${r.rewardCount}` : ''}</span>` : `<span style="font-size:12px;color:var(--text-muted);font-weight:700;">${r.stamps}/${goal}</span>`}
     </div>`;
   }).join('');
 }
@@ -1040,7 +1040,7 @@ function renderCustomerList(search = '') {
       <div class="avatar" style="width:32px;height:32px;font-size:14px;">${nick[0].toUpperCase()}</div>
       <div class="info"><div class="name">${nick}</div><div class="mini-stamps">${dots}</div></div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        ${done ? '<span class="rewarded-badge">🏆 완성</span>' : `<span style="font-size:12px;color:var(--text-muted);font-weight:700;">${r.stamps||0}/${settings.stampGoal}</span>`}
+        ${done ? `<span class="rewarded-badge">🏆 완성${r.rewardCount > 1 ? ` x${r.rewardCount}` : ''}</span>` : `<span style="font-size:12px;color:var(--text-muted);font-weight:700;">${r.stamps||0}/${settings.stampGoal}</span>`}
         <div style="display:flex;gap:4px;">
           <button class="btn btn-sm btn-danger"  onclick="quickStamp('${nick}',-1)">－1</button>
           <button class="btn btn-sm btn-success" onclick="quickStamp('${nick}',+1)">＋1</button>
@@ -1571,7 +1571,9 @@ async function exportCSV() {
   if (pw === null) return;
   if (pw !== settings.adminPw) { toast('비밀번호가 틀렸습니다', 'error'); return; }
   if (!confirm(`"${nick}"님의 보상을 확인했습니다.\n스탬프를 초기화할까요?`)) return;
-  await FS.set('customers', nick, { stamps: 0, rewarded: false });
+  const curData = await FS.get('customers', nick);
+  const rewardCount = (curData?.rewardCount || 0) + 1;
+  await FS.set('customers', nick, { stamps: 0, rewarded: false, rewardCount });
   await addLog('보상 확인', `${nick}님 보상 확인 및 스탬프 초기화`);
   toast(`${nick}님 스탬프가 초기화됐어요`, 'success');
   renderCustomerCard(nick);
