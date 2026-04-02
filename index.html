@@ -1040,7 +1040,10 @@ function renderCustomerList(search = '') {
       <div class="avatar" style="width:32px;height:32px;font-size:14px;">${nick[0].toUpperCase()}</div>
       <div class="info"><div class="name">${nick}</div><div class="mini-stamps">${dots}</div></div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        ${done ? `<span class="rewarded-badge">🏆 완성${r.rewardCount > 1 ? ` x${r.rewardCount}` : ''}</span>` : `<span style="font-size:12px;color:var(--text-muted);font-weight:700;">${r.stamps||0}/${settings.stampGoal}</span>`}
+       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+  ${done ? `<span class="rewarded-badge">🏆 완성</span>` : `<span style="font-size:12px;color:var(--text-muted);font-weight:700;">${r.stamps||0}/${settings.stampGoal}</span>`}
+  ${r.rewardCount ? `<span style="font-size:10px;color:var(--purple-dark);font-weight:700;">누적 ${r.rewardCount}회 완성</span>` : ''}
+</div>
         <div style="display:flex;gap:4px;">
           <button class="btn btn-sm btn-danger"  onclick="quickStamp('${nick}',-1)">－1</button>
           <button class="btn btn-sm btn-success" onclick="quickStamp('${nick}',+1)">＋1</button>
