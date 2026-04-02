@@ -1128,12 +1128,40 @@ function renderAnnounceManage(list) {
   if (!el) return;
   if (list.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--text-muted);">등록된 공지가 없어요</p>'; return; }
   el.innerHTML = list.map((a, i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
-      <div style="flex:1;font-size:13px;font-weight:700;">${a.title}<br><span style="font-weight:400;color:var(--text-muted);">${a.content}</span></div>
-      <button class="btn btn-sm btn-danger" onclick="deleteAnnounce(${i})">🗑</button>
+    <div style="padding:8px 0;border-bottom:1px solid var(--border);" id="announce-item-${i}">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;font-size:13px;font-weight:700;">${a.title}<br><span style="font-weight:400;color:var(--text-muted);">${a.content}</span></div>
+        <button class="btn btn-sm btn-secondary" onclick="editAnnounce(${i})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteAnnounce(${i})">🗑</button>
+      </div>
+      <div id="announce-edit-${i}" style="display:none;margin-top:8px;display:flex;flex-direction:column;gap:6px;">
+        <input type="text" id="announce-edit-title-${i}" value="${a.title}" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;">
+        <textarea id="announce-edit-content-${i}" rows="2" style="padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;resize:vertical;">${a.content}</textarea>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-primary" onclick="saveAnnounce(${i})">💾 저장</button>
+          <button class="btn btn-sm btn-secondary" onclick="cancelAnnounce(${i})">취소</button>
+        </div>
+      </div>
     </div>`).join('');
 }
 
+function editAnnounce(i) {
+  document.getElementById(`announce-edit-${i}`).style.display = 'flex';
+}
+function cancelAnnounce(i) {
+  document.getElementById(`announce-edit-${i}`).style.display = 'none';
+}
+async function saveAnnounce(i) {
+  const title = document.getElementById(`announce-edit-title-${i}`).value.trim();
+  const content = document.getElementById(`announce-edit-content-${i}`).value.trim();
+  if (!title || !content) { toast('제목과 내용을 입력해주세요', 'error'); return; }
+  const data = await FS.get('config', 'announces');
+  const list = data?.list || [];
+  list[i] = { title, content };
+  await FS.set('config', 'announces', { list });
+  toast('공지사항이 수정됐어요! 📢', 'success');
+  loadAnnounces();
+}
 async function addAnnounce() {
   const title = document.getElementById('set-announce-title').value.trim();
   const content = document.getElementById('set-announce-content').value.trim();
