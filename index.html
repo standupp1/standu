@@ -957,7 +957,12 @@ async function giveStamp() {
   if (!nick) { toast('닉네임을 입력해주세요', 'error'); return; }
 
   let data = await FS.get('customers', nick);
-  if (!data) data = { stamps: 0, rewarded: false };
+  if (!data) {
+    // 신규 고객 - 중복 닉네임 없음 확인 후 등록
+    const confirm1 = confirm(`"${nick}" 닉네임으로 새 고객을 등록할까요?`);
+    if (!confirm1) return;
+    data = { stamps: 0, rewarded: false };
+  }
 
   if (data.stamps >= settings.stampGoal && data.rewarded) {
     toast('이미 보상을 받은 고객이에요 🏆'); return;
