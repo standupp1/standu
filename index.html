@@ -956,12 +956,13 @@ async function giveStamp() {
   const nick = document.getElementById('stamp-nick-input').value.trim();
   if (!nick) { toast('닉네임을 입력해주세요', 'error'); return; }
 
-  let data = await FS.get('customers', nick);
+ let data = await FS.get('customers', nick);
   if (!data) {
-    // 신규 고객 - 중복 닉네임 없음 확인 후 등록
-    const confirm1 = confirm(`"${nick}" 닉네임으로 새 고객을 등록할까요?`);
-    if (!confirm1) return;
     data = { stamps: 0, rewarded: false };
+  } else {
+    // 이미 존재하는 닉네임 - 경고
+    const ok = confirm(`"${nick}" 닉네임은 이미 등록된 고객이에요!\n이 고객에게 스탬프를 추가할까요?\n\n다른 고객이라면 취소 후 다른 닉네임을 사용해주세요.`);
+    if (!ok) return;
   }
 
   if (data.stamps >= settings.stampGoal && data.rewarded) {
